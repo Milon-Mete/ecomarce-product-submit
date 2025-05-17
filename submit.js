@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-
 // Load environment variables
 dotenv.config();
 
@@ -30,6 +29,9 @@ const productSchema = new mongoose.Schema({
   crossPrice: { type: Number, required: true },
   tag: { type: String, required: true },
   image: { type: String, required: true },
+  category: { type: String, required: true },       // New field
+  subcategory: { type: String, required: true },    // New field
+  color: { type: String, required: true },          // New field
   dateAdded: { type: Date, default: Date.now },
 });
 
@@ -38,10 +40,13 @@ const Product = mongoose.model('Product', productSchema);
 // API Endpoint: Add a new product
 app.post('/api/products', async (req, res) => {
   try {
-    const { name, description, price, crossPrice, tag, image } = req.body;
-    if (!name || !description || !price || !crossPrice || !tag || !image) {
+    const { name, description, price, crossPrice, tag, image, category, subcategory, color } = req.body;
+
+    // Validate required fields
+    if (!name || !description || !price || !crossPrice || !tag || !image || !category || !subcategory || !color) {
       return res.status(400).json({ message: 'All fields are required' });
     }
+
     const product = new Product({
       name,
       description,
@@ -49,10 +54,15 @@ app.post('/api/products', async (req, res) => {
       crossPrice,
       tag,
       image,
+      category,
+      subcategory,
+      color,
       dateAdded: new Date(),
     });
+
     await product.save();
     res.status(201).json({ message: 'Product added successfully', product });
+
   } catch (err) {
     res.status(500).json({ message: 'Error adding product', error: err.message });
   }
